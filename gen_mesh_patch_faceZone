@@ -1,0 +1,35 @@
+//---------------------------------------------------------------
+// generation du maillage
+//---------------------------------------------------------------
+
+foamClearPolyMesh
+rm -rf 0
+blockMesh
+
+snappyHexMesh -overwrite -dict system/snappyHexMeshDict.cast
+
+topoSet -dict system/topoSetDict.boxToCell
+refineMesh -overwrite
+rm -rf 0
+rm constant/polyMesh/cellLevel
+rm constant/polyMesh/pointLevel
+
+snappyHexMesh -overwrite -dict system/snappyHexMeshDict.snap
+setSet -batch system/setSet.faces_amont_aval
+createPatch -overwrite -dict system/createPatchDict.amont_aval
+
+rm -r 0
+cp -r zeroOrig 0
+
+mapFields /home/sylvie/Desktop/maryseCase -mapMethod mapNearest -sourceTime 22
+
+
+//---------------------------------------------------------------
+// definition des faceZones pour le monitoring du flux de rhoPhi
+//---------------------------------------------------------------
+
+//topoSet -dict system/topoSetDict.surface
+//topoSet -dict system/topoSetDict.surfaceStl
+
+topoSet -dict system/topoSetDict.boxToCell2
+refineMesh -overwrite
